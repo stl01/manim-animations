@@ -396,3 +396,14 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+
+
+# Virtual Environment
+.venv/
+
+# Media
+
+media/videos/*
+media/Tex/*
+media/texts/*
