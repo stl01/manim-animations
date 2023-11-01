@@ -2,7 +2,6 @@ from manim import config, Scene, Circle, Rectangle, Polygon, Create, Axes, Trans
 from manim import DEGREES, UP, DOWN, LEFT, RIGHT
 from manim import WHITE, BLACK, PINK, GREY, BLUE, RED
 from manim import *   # noqa: F403
-import pandas as pd
 
 config.background_color = WHITE
 
@@ -60,13 +59,11 @@ class CreateGraph(Scene):
         self.plotted_total_1 = self.graph.plot(lambda x: pwr_total[min(int(x / x_scale), len(pwr_total)-1)], color=BLACK)
 
 
-class CreateGraph_orig(Scene):
+class NILM_total(Scene):
     def construct(self):
 
-
-        # Erstellen Sie ein Diagramm mit den Datenpunkten
         graph = Axes(
-            x_range=[0, x_scale * (len(pwr_total)), (x_scale * x_spacing) // 2],  # Multiplizieren Sie die X-Werte mit 5
+            x_range=[0, x_scale * (len(pwr_total)), (x_scale * x_spacing) // 2],
             y_range=[0, max(pwr_total) + 500, 500],
             x_length=9,
             y_length=5.5,
@@ -80,11 +77,11 @@ class CreateGraph_orig(Scene):
         )
 
         # Beschriftungen hinzufügen
-        x_values = [x_scale * i for i in range(0, len(pwr_blender), x_spacing)]  # Multiplizieren Sie die X-Werte mit 5
+        x_values = [x_scale * i for i in range(0, len(pwr_blender), x_spacing)]
         x_numbers = graph.get_x_axis().add_numbers([i for i in range(0, x_scale * len(pwr_total), x_scale * x_spacing)])
         y_numbers = graph.get_y_axis().add_numbers([i for i in range(0, int(max(pwr_total)) + 500, 1000)])
 
-        # Setzen Sie die Farbe der Achsenbeschriftungen auf Schwarz
+        # Achsenbeschriftung Farbe
         for label in x_numbers:
             label.set_color(BLACK)
         for label in y_numbers:
@@ -94,24 +91,21 @@ class CreateGraph_orig(Scene):
         x_label = graph.get_x_axis_label(Tex("Zeit in Sekunden").scale(0.65), edge=DOWN, direction=DOWN, buff=0.25).set_color(BLACK)
         y_label = graph.get_y_axis_label(Tex("Leistung in Watt").scale(0.65).rotate(90 * DEGREES), edge=LEFT, direction=LEFT, buff=0.25).set_color(BLACK)
 
-        # Alles zur Szene hinzufügen und animieren
 
         self.play(Create(graph), Write(x_label), Write(y_label))
         self.wait(0.5)
 
-        # 1. Erstellen und Anzeigen der Summe aller vier Serien
         plotted_total_0 = graph.plot(lambda x: pwr_total[min(int(x / x_scale), len(pwr_total)-1)], color="#D5D5D5")
         plotted_total_1 = graph.plot(lambda x: pwr_total[min(int(x / x_scale), len(pwr_total)-1)], color=BLACK)
         self.play(Create(plotted_total_0), Create(plotted_total_1), run_time=3)
         self.wait(2)
 
-        # 2. Transformieren Sie die Summe in (Summe-pwr_blender) und pwr_blender
         pwr_sum_minus_blender = [total - blender for total, blender in zip(pwr_total, pwr_blender)]
         plotted_total_2 = graph.plot(lambda x: pwr_sum_minus_blender[min(int(x / x_scale), len(pwr_sum_minus_blender)-1)], color=BLACK)
         plotted_blender = graph.plot(lambda x: pwr_blender[min(int(x / x_scale), len(pwr_blender)-1)], color=CBLUE, use_smoothing=False)
         plotted_blender_original = plotted_blender.copy()
 
-        # Finden Sie den ersten und letzten Nicht-Null-Wert in der Datenreihe
+
         non_zero_indices = [i for i, value in enumerate(pwr_blender) if value != 0]
         x_min = non_zero_indices[0]
         x_max = non_zero_indices[-1]
@@ -134,7 +128,7 @@ class CreateGraph_orig(Scene):
         
         self.wait(2)
 
-        # 3. Transformieren Sie die Summe in (Summe-pwr_blender-pwr_stove), pwr_blender und pwr_stove
+
         pwr_sum_minus_blender_stove = [sum_minus_blender - stove for sum_minus_blender, stove in zip(pwr_sum_minus_blender, pwr_stove)]
         plotted_sum_minus_blender_stove = graph.plot(lambda x: pwr_sum_minus_blender_stove[min(int(x / x_scale), len(pwr_sum_minus_blender_stove)-1)], color=BLACK)
         plotted_stove = graph.plot(lambda x: pwr_stove[min(int(x / x_scale), len(pwr_stove)-1)], color=CRED, use_smoothing=False)
@@ -156,7 +150,7 @@ class CreateGraph_orig(Scene):
                   Transform(plotted_stove, plotted_stove_under_text))
         self.wait(2)
 
-        # 4. Transformieren Sie die Summe in (pwr_sum_minus_blender_stove - pwr_kettle), pwr_blender, pwr_stove und pwr_kettle
+
         pwr_sum_minus_blender_stove_kettle = [sum_minus_blender_stove - kettle for sum_minus_blender_stove, kettle in zip(pwr_sum_minus_blender_stove, pwr_kettle)]
         plotted_sum_minus_blender_stove_kettle = graph.plot(lambda x: pwr_sum_minus_blender_stove_kettle[min(int(x / x_scale), len(pwr_sum_minus_blender_stove_kettle)-1)], color=BLACK)
         plotted_kettle = graph.plot(lambda x: pwr_kettle[min(int(x / x_scale), len(pwr_kettle)-1)], color=CGREEN, use_smoothing=False)
@@ -192,8 +186,8 @@ class CreateGraph_orig(Scene):
             index = min(int(x / x_scale), len(pwr_blender)-1)
             return max(pwr_blender[index], pwr_stove[index], pwr_kettle[index])
 
-        # Erstellen Sie eine Linie für den maximalen Wert der drei Serien
-        max_value_line = graph.plot(max_value_function, color=CACCENT, use_smoothing=False)  # Die Farbe ist hier nicht wichtig, da wir nur den Bereich darunter füllen wollen
+
+        max_value_line = graph.plot(max_value_function, color=CACCENT, use_smoothing=False)
 
         plotted_x_min = 5 * x_scale
         plotted_x_max = 38 * x_scale
@@ -205,10 +199,9 @@ class CreateGraph_orig(Scene):
 
         # Bereich zwischen den Linien füllen
         marked_area = graph.get_area(max_value_line, x_range=[plotted_x_min, plotted_x_max], color=CDARKGREEN, opacity=0.9)
-        # Fügen Sie den Bereich zur Szene hinzu (ohne Animation)
+
         self.add(marked_area)
 
-        # Führen Sie dann Ihre anderen Animationen durch
         self.play(Create(left_line), 
                   Create(right_line),
                   FadeOut(plotted_blender_under_text),
@@ -227,7 +220,7 @@ class CreateGraph_orig(Scene):
                 )
 
         adl_text = Text('ADL "Kochen"', font_size=36).next_to(plotted_stove_original, UP * 2).set_color(BLACK)
-        adl_text.shift(LEFT * 0.5)  # Verschiebt den Text um 0.5 Einheiten nach links. Sie können den Wert anpassen.
+        adl_text.shift(LEFT * 0.5)
         self.play(Write(adl_text))
         
         
@@ -236,7 +229,7 @@ class CreateGraph_orig(Scene):
         #self.play()
 
         
-        # Koordinaten für die Ecken des Rechtecks ermitteln
+        # Koordinaten für die Ecken des Rechtecks
         bottom_left = graph.c2p(plotted_x_min, 2000)
         top_left = graph.c2p(plotted_x_min, 2500)
         bottom_right = graph.c2p(plotted_x_max, 2000)
@@ -248,7 +241,7 @@ class CreateGraph_orig(Scene):
 
         # x-Achse neu positionieren
         graph.x_axis.generate_target()
-        graph.x_axis.target.shift(UP * 2)  # Verschieben Sie die x-Achse um 2.75 Einheiten nach oben. Sie können diesen Wert anpassen.
+        graph.x_axis.target.shift(UP * 2)
         
         # y-Achse ausblenden
         self.play(FadeOut(graph.y_axis), FadeOut(y_numbers), FadeOut(y_label), FadeOut(x_label), Transform(marked_area, adl), Transform(max_value_line, adl_border), MoveToTarget(graph.x_axis), adl_text.animate.shift(DOWN * 0.25))
@@ -260,9 +253,8 @@ class CreateGraph_orig(Scene):
 class CreateADL(Scene):
     def construct(self):
 
-        # Erstellen Sie ein Diagramm mit den Datenpunkten
         graph = Axes(
-            x_range=[0, x_scale * (len(pwr_total)), (x_scale * x_spacing) // 2],  # Multiplizieren Sie die X-Werte mit 5
+            x_range=[0, x_scale * (len(pwr_total)), (x_scale * x_spacing) // 2],
             y_range=[0, max(pwr_total) + 500, 500],
             x_length=9,
             y_length=5.5,
@@ -275,12 +267,11 @@ class CreateADL(Scene):
                 }
         )
 
-        # Beschriftungen hinzufügen
-        x_values = [x_scale * i for i in range(0, len(pwr_blender), x_spacing)]  # Multiplizieren Sie die X-Werte mit 5
+        x_values = [x_scale * i for i in range(0, len(pwr_blender), x_spacing)]
         x_numbers = graph.get_x_axis().add_numbers([i for i in range(0, x_scale * len(pwr_total), x_scale * x_spacing)])
         y_numbers = graph.get_y_axis().add_numbers([i for i in range(0, int(max(pwr_total)) + 500, 1000)])
 
-        # Setzen Sie die Farbe der Achsenbeschriftungen auf Schwarz
+        # Achsenbeschriftung Farbe
         for label in x_numbers:
             label.set_color(BLACK)
         for label in y_numbers:
@@ -290,18 +281,17 @@ class CreateADL(Scene):
         x_label = graph.get_x_axis_label(Tex("Zeit in Sekunden").scale(0.65), edge=DOWN, direction=DOWN, buff=0.25).set_color(BLACK)
         y_label = graph.get_y_axis_label(Tex("Leistung in Watt").scale(0.65).rotate(90 * DEGREES), edge=LEFT, direction=LEFT, buff=0.25).set_color(BLACK)
 
-        # 1. Erstellen und Anzeigen der Summe aller vier Serien
         plotted_total_0 = graph.plot(lambda x: pwr_total[min(int(x / x_scale), len(pwr_total)-1)], color="#D5D5D5")
         plotted_total_1 = graph.plot(lambda x: pwr_total[min(int(x / x_scale), len(pwr_total)-1)], color=BLACK)
 
 
-        # 2. Transformieren Sie die Summe in (Summe-pwr_blender) und pwr_blender
+
         pwr_sum_minus_blender = [total - blender for total, blender in zip(pwr_total, pwr_blender)]
         plotted_total_2 = graph.plot(lambda x: pwr_sum_minus_blender[min(int(x / x_scale), len(pwr_sum_minus_blender)-1)], color=BLACK)
         plotted_blender = graph.plot(lambda x: pwr_blender[min(int(x / x_scale), len(pwr_blender)-1)], color=CBLUE, use_smoothing=False)
         plotted_blender_original = plotted_blender.copy()
 
-        # Finden Sie den ersten und letzten Nicht-Null-Wert in der Datenreihe
+
         non_zero_indices = [i for i, value in enumerate(pwr_blender) if value != 0]
         x_min = non_zero_indices[0]
         x_max = non_zero_indices[-1]
@@ -310,7 +300,7 @@ class CreateADL(Scene):
         text_blender = Text("Mixer").scale(0.7).next_to(graph,UR).set_color(CBLUE)
         plotted_blender_under_text = plotted_blender.copy().scale(0.2).next_to(text_blender, DOWN)
 
-        # 3. Transformieren Sie die Summe in (Summe-pwr_blender-pwr_stove), pwr_blender und pwr_stove
+
         pwr_sum_minus_blender_stove = [sum_minus_blender - stove for sum_minus_blender, stove in zip(pwr_sum_minus_blender, pwr_stove)]
         plotted_sum_minus_blender_stove = graph.plot(lambda x: pwr_sum_minus_blender_stove[min(int(x / x_scale), len(pwr_sum_minus_blender_stove)-1)], color=BLACK)
         plotted_stove = graph.plot(lambda x: pwr_stove[min(int(x / x_scale), len(pwr_stove)-1)], color=CRED, use_smoothing=False)
@@ -319,7 +309,7 @@ class CreateADL(Scene):
         text_stove = Text("Herdplatte").scale(0.7).next_to(plotted_blender_under_text,DOWN).set_color(CRED)
         plotted_stove_under_text = plotted_stove.copy().scale(0.2).next_to(text_stove, DOWN)
 
-        # 4. Transformieren Sie die Summe in (pwr_sum_minus_blender_stove - pwr_kettle), pwr_blender, pwr_stove und pwr_kettle
+
         pwr_sum_minus_blender_stove_kettle = [sum_minus_blender_stove - kettle for sum_minus_blender_stove, kettle in zip(pwr_sum_minus_blender_stove, pwr_kettle)]
         plotted_sum_minus_blender_stove_kettle = graph.plot(lambda x: pwr_sum_minus_blender_stove_kettle[min(int(x / x_scale), len(pwr_sum_minus_blender_stove_kettle)-1)], color=BLACK)
         plotted_kettle = graph.plot(lambda x: pwr_kettle[min(int(x / x_scale), len(pwr_kettle)-1)], color=CGREEN, use_smoothing=False)
@@ -359,8 +349,7 @@ class CreateADL(Scene):
             index = min(int(x / x_scale), len(pwr_blender)-1)
             return max(pwr_blender[index], pwr_stove[index], pwr_kettle[index])
 
-        # Erstellen Sie eine Linie für den maximalen Wert der drei Serien
-        max_value_line = graph.plot(max_value_function, color=CACCENT, use_smoothing=False)  # Die Farbe ist hier nicht wichtig, da wir nur den Bereich darunter füllen wollen
+        max_value_line = graph.plot(max_value_function, color=CACCENT, use_smoothing=False)
 
         plotted_x_min = 5 * x_scale
         plotted_x_max = 38 * x_scale
@@ -372,10 +361,10 @@ class CreateADL(Scene):
 
         # Bereich zwischen den Linien füllen
         marked_area = graph.get_area(max_value_line, x_range=[plotted_x_min, plotted_x_max], color=CDARKGREEN, opacity=0.9)
-        # Fügen Sie den Bereich zur Szene hinzu (ohne Animation)
+
         self.add(marked_area)
 
-        # Führen Sie dann Ihre anderen Animationen durch
+
         self.play(Create(left_line), 
                   Create(right_line),
                   FadeOut(plotted_blender_under_text),
@@ -394,7 +383,7 @@ class CreateADL(Scene):
                 )
 
         adl_text = Text('ADL "Kochen"', font_size=36).next_to(plotted_stove_original, UP * 2).set_color(BLACK)
-        adl_text.shift(LEFT * 0.5)  # Verschiebt den Text um 0.5 Einheiten nach links. Sie können den Wert anpassen.
+        adl_text.shift(LEFT * 0.5)
         self.play(Write(adl_text))
         
         
@@ -413,13 +402,10 @@ class CreateADL(Scene):
 
         # x-Achse neu positionieren
         graph.x_axis.generate_target()
-        graph.x_axis.target.shift(UP * 2)  # Verschieben Sie die x-Achse um 2.75 Einheiten nach oben. Sie können diesen Wert anpassen.
+        graph.x_axis.target.shift(UP * 2)
         
         # y-Achse ausblenden
         self.play(FadeOut(graph.y_axis), FadeOut(y_numbers), FadeOut(y_label), FadeOut(x_label), Transform(marked_area, adl), Transform(max_value_line, adl_border), MoveToTarget(graph.x_axis), adl_text.animate.shift(DOWN * 0.25))
-
-        
-        self.wait(3)
         
         
         
@@ -434,12 +420,12 @@ class DisaggregateGraph(Scene):
         self.add(graph_scene.plotted_total_1)
 
 
-        # 2. Transformieren Sie die Summe in (Summe-pwr_blender) und pwr_blender
+
         pwr_sum_minus_blender = [total - blender for total, blender in zip(pwr_total, pwr_blender)]
         plotted_total_2 = graph_scene.graph.plot(lambda x: pwr_sum_minus_blender[min(int(x / x_scale), len(pwr_sum_minus_blender)-1)], color=BLACK)
         plotted_blender = graph_scene.graph.plot(lambda x: pwr_blender[min(int(x / x_scale), len(pwr_blender)-1)], color=CBLUE, use_smoothing=False)
 
-        # Finden Sie den ersten und letzten Nicht-Null-Wert in der Datenreihe
+
         non_zero_indices = [i for i, value in enumerate(pwr_blender) if value != 0]
         x_min = non_zero_indices[0]
         x_max = non_zero_indices[-1]
@@ -482,7 +468,7 @@ class DisaggregateGraph(Scene):
                   Transform(plotted_stove, plotted_stove_under_text))
         self.wait(2)
 
-        # 4. Transformieren Sie die Summe in (pwr_sum_minus_blender_stove - pwr_kettle), pwr_blender, pwr_stove und pwr_kettle
+
         pwr_sum_minus_blender_stove_kettle = [sum_minus_blender_stove - kettle for sum_minus_blender_stove, kettle in zip(pwr_sum_minus_blender_stove, pwr_kettle)]
         plotted_sum_minus_blender_stove_kettle = graph_scene.graph.plot(lambda x: pwr_sum_minus_blender_stove_kettle[min(int(x / x_scale), len(pwr_sum_minus_blender_stove_kettle)-1)], color=BLACK)
         plotted_kettle = graph_scene.graph.plot(lambda x: pwr_kettle[min(int(x / x_scale), len(pwr_kettle)-1)], color=CGREEN, use_smoothing=False)

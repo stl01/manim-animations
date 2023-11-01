@@ -402,6 +402,8 @@ FodyWeavers.xsd
 # Virtual Environment
 .venv/
 
+.vscode/
+
 # Media
 
 media/videos/*
